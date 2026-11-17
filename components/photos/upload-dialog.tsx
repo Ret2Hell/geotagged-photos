@@ -15,7 +15,11 @@ import {
 } from "@/components/ui/dialog";
 import { UploadForm } from "./upload-form";
 
-export function UploadDialog() {
+export function UploadDialog({
+    onUploaded,
+}: {
+    onUploaded: (photoId: string) => void;
+}) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
@@ -45,9 +49,10 @@ export function UploadDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <UploadForm
-                    onUploaded={() => {
+                    onUploaded={(photoId) => {
                         setOpen(false);
                         router.refresh();
+                        onUploaded(photoId);
                     }}
                 />
             </DialogContent>

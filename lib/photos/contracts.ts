@@ -2,6 +2,11 @@ import { z } from "zod";
 import { coordinatesSchema } from "./validation";
 
 export const apiErrorSchema = z.object({ error: z.string() });
+export const uploadResponseSchema = z.object({ id: z.uuid() });
+export const descriptionSchema = z.object({
+    id: z.uuid(),
+    description: z.string().min(1).max(2000),
+});
 
 export const commentInputSchema = z.object({
     body: z.string().trim().min(1).max(2000),

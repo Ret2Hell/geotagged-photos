@@ -58,7 +58,13 @@ const points: LayerProps = {
     },
 };
 
-export default function MapCanvas({ data }: { data: PhotoLocations }) {
+export default function MapCanvas({
+    data,
+    descriptions,
+}: {
+    data: PhotoLocations;
+    descriptions: Record<string, string>;
+}) {
     const mapRef = useRef<MapRef>(null);
     const [error, setError] = useState("");
     const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
@@ -150,6 +156,7 @@ export default function MapCanvas({ data }: { data: PhotoLocations }) {
                 <PhotoDetailsDialog
                     key={selectedPhotoId}
                     photoId={selectedPhotoId}
+                    generatedDescription={descriptions[selectedPhotoId]}
                     onClose={() => setSelectedPhotoId(null)}
                 />
             )}

@@ -19,9 +19,11 @@ import {
 export function PhotoDetailsDialog({
     photoId,
     onClose,
+    generatedDescription,
 }: {
     photoId: string;
     onClose: () => void;
+    generatedDescription?: string;
 }) {
     const [photo, setPhoto] = useState<PhotoDetails | null>(null);
     const [error, setError] = useState("");
@@ -110,9 +112,22 @@ export function PhotoDetailsDialog({
                                 {new Date(photo.createdAt).toLocaleString()}
                             </time>
                         </p>
-                        {photo.aiDescription && (
-                            <p className="text-sm">{photo.aiDescription}</p>
-                        )}
+                        <section
+                            aria-labelledby="description-title"
+                            className="space-y-2"
+                        >
+                            <h2
+                                id="description-title"
+                                className="font-semibold"
+                            >
+                                AI description
+                            </h2>
+                            <p className="text-sm whitespace-pre-wrap">
+                                {generatedDescription ||
+                                    photo.aiDescription ||
+                                    "No AI description available."}
+                            </p>
+                        </section>
                         <PhotoComments
                             photoId={photo.id}
                             initialComments={photo.comments}
