@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LngLatBounds, type GeoJSONSource } from "mapbox-gl";
 import Map, {
     Layer,
@@ -20,7 +20,7 @@ const clusters: LayerProps = {
     type: "circle",
     filter: ["has", "point_count"],
     paint: {
-        "circle-color": "#0f766e",
+        "circle-color": "#2dd4bf",
         "circle-radius": [
             "step",
             ["get", "point_count"],
@@ -43,16 +43,16 @@ const clusterLabels: LayerProps = {
         "text-size": 12,
         "text-allow-overlap": true,
     },
-    paint: { "text-color": "#ffffff" },
+    paint: { "text-color": "#042f2e" },
 };
 const points: LayerProps = {
     id: "photo-points",
     type: "circle",
     filter: ["!", ["has", "point_count"]],
     paint: {
-        "circle-color": "#0f766e",
-        "circle-radius": 7,
-        "circle-stroke-width": 2,
+        "circle-color": "#2dd4bf",
+        "circle-radius": 8,
+        "circle-stroke-width": 3,
         "circle-stroke-color": "#ffffff",
     },
 };
@@ -63,19 +63,26 @@ export default function MapCanvas({ data }: { data: PhotoLocations }) {
 
     const [loaded, setLoaded] = useState(false);
 
+    const fitPhotos = useCallback(
+        (duration = 500) => {
+            if (!data.features.length) return;
+            const bounds = new LngLatBounds();
+            for (const photo of data.features) {
+                const [longitude, latitude] = photo.geometry.coordinates;
+                bounds.extend([longitude, latitude]);
+            }
+            mapRef.current?.fitBounds(bounds, {
+                padding: { top: 48, bottom: 96, left: 48, right: 72 },
+                maxZoom: 14,
+                duration,
+            });
+        },
+        [data],
+    );
+
     useEffect(() => {
-        if (!loaded || !data.features.length) return;
-        const bounds = new LngLatBounds();
-        for (const photo of data.features) {
-            const [longitude, latitude] = photo.geometry.coordinates;
-            bounds.extend([longitude, latitude]);
-        }
-        mapRef.current?.fitBounds(bounds, {
-            padding: 48,
-            maxZoom: 14,
-            duration: 0,
-        });
-    }, [data, loaded]);
+        if (loaded) fitPhotos(0);
+    }, [fitPhotos, loaded]);
 
     function expandCluster(event: MapMouseEvent) {
         const feature = event.features?.find(
@@ -97,7 +104,7 @@ export default function MapCanvas({ data }: { data: PhotoLocations }) {
     }
 
     return (
-        <div className="absolute inset-0">
+        <div className="photo-map absolute inset-0">
             <Map
                 ref={mapRef}
                 mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
@@ -107,11 +114,12 @@ export default function MapCanvas({ data }: { data: PhotoLocations }) {
                 interactiveLayerIds={["photo-clusters"]}
                 onLoad={() => setLoaded(true)}
                 onClick={expandCluster}
-                onError={() =>
-                    setError(
-                        "The map could not load. Check the Mapbox token, allowed URLs, and your connection.",
-                    )
-                }
+                onError={(event) => {
+                    const message =
+                        event.error.message || "An unknown map error occurred.";
+                    console.error("[map] Mapbox error:", message);
+                    setError(message);
+                }}
             >
                 <NavigationControl position="top-right" />
                 <ScaleControl unit="metric" />

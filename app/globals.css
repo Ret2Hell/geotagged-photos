@@ -132,3 +132,30 @@
         @apply font-sans;
     }
 }
+
+.photo-map .mapboxgl-ctrl-top-right {
+    top: 6px;
+    right: 6px;
+}
+
+.photo-map .mapboxgl-ctrl-group:not(:empty) {
+    @apply border-border bg-background overflow-hidden rounded-xl border shadow-md;
+}
+
+.photo-map .mapboxgl-ctrl-group button {
+    width: 40px;
+    height: 40px;
+}
+
+.photo-map .mapboxgl-ctrl-group button + button {
+    border-top-color: var(--border);
+}
+
+.photo-map .mapboxgl-ctrl-group button:hover {
+    background-color: var(--muted);
+}
+
+.photo-map .mapboxgl-ctrl-group button:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: -3px;
+}
