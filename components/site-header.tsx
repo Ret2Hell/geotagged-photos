@@ -26,7 +26,7 @@ async function SessionActions() {
     const session = result.data;
     if (session?.user) {
         return (
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-3">
                 <span className="max-w-40 truncate text-sm">
                     {session.user.name || session.user.email}
                 </span>
@@ -39,10 +39,10 @@ async function SessionActions() {
 
 export function SiteHeader() {
     return (
-        <header className="border-b px-6 py-4">
+        <header className="shrink-0 border-b px-6 py-4">
             <nav
                 aria-label="Main navigation"
-                className="mx-auto flex max-w-5xl items-center justify-between gap-6"
+                className="flex items-center justify-between gap-6"
             >
                 <Link
                     href="/"

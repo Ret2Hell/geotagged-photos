@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 figtree.variable,
             )}
         >
-            <body className="flex min-h-full flex-col">
+            <body className="flex h-dvh flex-col">
                 <SiteHeader />
                 {children}
             </body>
