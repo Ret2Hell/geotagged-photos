@@ -159,17 +159,27 @@ sequenceDiagram
 
 - **10,000 locations:** use a GeoJSON source, WebGL layers, and native clustering—not thousands of React markers. Fetch images/comments only on selection. Validate rendering with synthetic points, clearly separate from real photos.
 
+## Known limitations
+
+- **Uploads:** GPS-tagged JPEGs only, up to 25 MiB. Images are resized to 1600 pixels per side; full-resolution originals are not retained.
+- **Visibility:** All authenticated users can view shared photos and comments; there are no per-photo privacy controls.
+- **AI descriptions:** May be inaccurate or unavailable due to API errors, quotas, or timeouts. Generation is best-effort, without durable background jobs or automatic retries.
+- **Scale:** All photo locations are loaded at once. Clustering is implemented, but viewport queries and the 10,000-point benchmark are not.
+- **Quality assurance:** No automated test suite or CI pipeline is configured; verification currently relies on manual checks and local lint, typecheck, and build commands.
+
 ## Time estimate
 
-| Step                                                                          |           Minutes |
-| ----------------------------------------------------------------------------- | ----------------: |
-| Planning, architecture, and inspecting supplied image assets                  |                50 |
-| Project setup, foundation, tooling, database/storage, early Vercel deployment |                30 |
-| Authentication                                                                |                25 |
-| Upload and GPS extraction                                                     |                30 |
-| Map and clustering                                                            |                30 |
-| Photo details and comments                                                    |                25 |
-| Gemini image descriptions                                                     |                20 |
-| End-to-end checks, lint/type/build, deployment fixes                          |                20 |
-| Setup instructions and known limitations                                      |                10 |
-| **Total**                                                                     | **240 (4 hours)** |
+Original estimated budget; the implementation column summarizes completed work, not measured time per task.
+
+| Step                                     |           Minutes | Implementation                                                                                                                                                                                          |
+| ---------------------------------------- | ----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Planning and architecture                |                50 | Defined the MVP scope, selected the stack, and described the architecture, data model, and workflow with Mermaid diagrams.                                                                              |
+| Project foundation and integrations      |                30 | Upgraded to TypeScript 7; configured Oxlint/Oxfmt, mise tools/tasks, and hk Git hooks with secret scanning. Added shadcn UI, Zod/T3 Env, the Neon/Drizzle client and migrations, and the S3 client.     |
+| Authentication                           |                25 | Integrated managed Neon Auth, email/password forms, sign-out, server-side session checks, user foreign keys, and a live password checklist.                                                             |
+| Upload and GPS extraction                |                30 | Extracted GPS with exifr, resized JPEGs in the browser, added previews and validation, and saved images privately in S3 with metadata in PostgreSQL.                                                    |
+| Map and clustering                       |                30 | Built a full-screen Mapbox Streets map with GeoJSON/WebGL clustering, automatic framing, and a floating shadcn upload Dialog that refreshes map locations.                                              |
+| Photo details and comments               |                25 | Added one-click marker/cluster browsing with Previous/Next controls, signed image URLs, a two-column details Dialog, and persistent comments with author names and timestamps.                          |
+| Gemini image descriptions                |                20 | Integrated Gemini through the Vercel AI SDK with Zod-validated structured output, ownership checks, bounded generation time, database persistence, and nonblocking progress/error feedback.             |
+| Verification and deployment fixes        |                20 | Ran lint, typecheck, formatting, and production builds; manually verified authentication, uploads, photo viewing, and comments. Fixed session prerendering and production trusted-origin configuration. |
+| Setup instructions and known limitations |                10 | Documented local setup, environment variables, migrations, Vercel deployment, and limitations, including the lack of automated tests and CI.                                                            |
+| **Total**                                | **240 (4 hours)** |                                                                                                                                                                                                         |
