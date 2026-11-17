@@ -62,54 +62,78 @@ function PhotoDetailsContent({
     return (
         <>
             {error && (
-                <p role="alert" className="text-destructive text-sm">
+                <p role="alert" className="text-destructive p-6 text-sm">
                     {error}
                 </p>
             )}
             {!photo && !error && (
-                <output className="text-muted-foreground py-12 text-center text-sm">
+                <output className="text-muted-foreground flex flex-1 items-center justify-center p-6 text-sm">
                     Loading photograph…
                 </output>
             )}
             {photo && (
-                <div className="space-y-4">
-                    <Image
-                        src={photo.imageUrl}
-                        alt="Uploaded geotagged photograph"
-                        width={photo.width}
-                        height={photo.height}
-                        unoptimized
-                        onError={() => setImageError(true)}
-                        className="bg-muted max-h-[50dvh] w-full rounded-xl object-contain"
-                    />
-                    {imageError && (
-                        <p role="alert" className="text-destructive text-sm">
-                            The image could not load. Close and reopen the
-                            photograph to request a fresh link.
-                        </p>
-                    )}
-                    <p className="text-muted-foreground font-mono text-xs">
-                        {photo.latitude.toFixed(5)},{" "}
-                        {photo.longitude.toFixed(5)}
-                    </p>
-                    <p className="text-muted-foreground text-xs">
-                        Uploaded{" "}
-                        <time dateTime={photo.createdAt}>
-                            {new Date(photo.createdAt).toLocaleString()}
-                        </time>
-                    </p>
+                <div className="min-h-0 flex-1 overflow-y-auto md:grid md:grid-cols-[minmax(0,1.35fr)_minmax(20rem,1fr)] md:grid-rows-1 md:overflow-hidden">
                     <section
-                        aria-labelledby="description-title"
-                        className="space-y-2"
+                        aria-label="Photograph details"
+                        className="min-h-0 min-w-0 space-y-5 p-5 sm:p-6 md:overflow-y-auto"
                     >
-                        <h2 id="description-title" className="font-semibold">
-                            AI description
-                        </h2>
-                        <p className="text-sm whitespace-pre-wrap">
-                            {generatedDescription ||
-                                photo.aiDescription ||
-                                "No AI description available."}
-                        </p>
+                        <Image
+                            src={photo.imageUrl}
+                            alt="Uploaded geotagged photograph"
+                            width={photo.width}
+                            height={photo.height}
+                            unoptimized
+                            onError={() => setImageError(true)}
+                            className="bg-muted max-h-[45dvh] w-full rounded-2xl object-contain"
+                        />
+                        {imageError && (
+                            <p
+                                role="alert"
+                                className="text-destructive text-sm"
+                            >
+                                The image could not load. Close and reopen the
+                                photograph to request a fresh link.
+                            </p>
+                        )}
+                        <dl className="bg-muted/30 grid gap-4 rounded-xl border p-4 text-sm sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+                            <div className="space-y-1">
+                                <dt className="text-muted-foreground text-xs">
+                                    Location
+                                </dt>
+                                <dd className="font-mono text-xs">
+                                    {photo.latitude.toFixed(5)},{" "}
+                                    {photo.longitude.toFixed(5)}
+                                </dd>
+                            </div>
+                            <div className="space-y-1">
+                                <dt className="text-muted-foreground text-xs">
+                                    Uploaded
+                                </dt>
+                                <dd>
+                                    <time dateTime={photo.createdAt}>
+                                        {new Date(
+                                            photo.createdAt,
+                                        ).toLocaleString()}
+                                    </time>
+                                </dd>
+                            </div>
+                        </dl>
+                        <section
+                            aria-labelledby="description-title"
+                            className="space-y-2"
+                        >
+                            <h2
+                                id="description-title"
+                                className="font-semibold"
+                            >
+                                Description
+                            </h2>
+                            <p className="text-muted-foreground text-sm leading-relaxed wrap-anywhere whitespace-pre-wrap">
+                                {generatedDescription ||
+                                    photo.aiDescription ||
+                                    "No description available."}
+                            </p>
+                        </section>
                     </section>
                     <PhotoComments
                         photoId={photo.id}
@@ -145,9 +169,9 @@ export function PhotoDetailsDialog({
                 if (!open) onClose();
             }}
         >
-            <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
-                <DialogHeader>
-                    <DialogTitle>Photograph</DialogTitle>
+            <DialogContent className="flex h-[90dvh] max-h-[56rem] flex-col gap-0 overflow-hidden p-0 sm:max-w-6xl">
+                <DialogHeader className="sr-only">
+                    <DialogTitle>Photo details</DialogTitle>
                     <DialogDescription className="sr-only">
                         View photograph details and comments.
                     </DialogDescription>
@@ -155,7 +179,7 @@ export function PhotoDetailsDialog({
                 {count > 1 && (
                     <nav
                         aria-label="Photograph navigation"
-                        className="flex items-center justify-between gap-3"
+                        className="flex shrink-0 items-center justify-between gap-3 border-b py-3 pr-16 pl-5 sm:pl-6"
                     >
                         <Button
                             type="button"
