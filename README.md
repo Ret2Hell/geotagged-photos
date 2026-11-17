@@ -2,6 +2,42 @@
 
 Upload geotagged photographs, generate descriptions with Gemini, explore them on a map, and discuss them through comments.
 
+## Setup
+
+Requires [mise](https://mise.jdx.dev/), a Neon project with Auth and a **private** Object Storage bucket, a Mapbox public token, and a Google Gemini API key with access to `gemini-3.5-flash-lite`.
+
+### Run locally
+
+```bash
+git clone https://github.com/Ret2Hell/geotagged-photos.git
+cd geotagged-photos
+mise trust
+mise install
+mise run install
+cp .env.example .env.local
+```
+
+Fill in every variable in `.env.local` using `.env.example`:
+
+- Use database, Auth, and storage credentials from the **same Neon branch**. Enable email/password authentication before running migrations.
+- Generate `NEON_AUTH_COOKIE_SECRET` with `openssl rand -base64 32`.
+- Keep `.env.local` private; only `NEXT_PUBLIC_MAPBOX_TOKEN` is exposed to the browser.
+
+```bash
+mise run db:check
+mise run db:migrate
+mise run hooks
+mise run dev
+```
+
+`db:migrate` creates the application tables and user references in the configured database. Open [localhost:3000](http://localhost:3000), create an account, and sign in. Upload a GPS-tagged JPEG up to 25 MiB to try the map, descriptions, and comments.
+
+### Checks and deployment
+
+Run `pn run lint`, `pn run typecheck`, and `pn run format:check`. Use `mise run build` for a production build, or `mise run start` to build and serve it locally.
+
+For Vercel, import the repository and configure the variables from `.env.example` in the deployment environment. Apply migrations to that environment's Neon database before using the app. Add the exact deployment origin (for example, `https://your-app.vercel.app`) to Neon Auth's trusted origins and the Mapbox token's allowed URLs. Redeploy after changing environment variables.
+
 ## Stack
 
 - **Application:** Next.js, React, TypeScript, Tailwind CSS, shadcn/ui.
@@ -17,7 +53,7 @@ I chose Next.js and Neon to keep development and deployment simple within the fo
 
 ## Architecture
 
-One Next.js application, without a separate backend service. Proposed access: public viewing; authentication required for uploads and comments.
+One Next.js application, without a separate backend service. Authentication is required to view the map and photos, upload images, and add comments.
 
 ```mermaid
 flowchart TB
@@ -58,14 +94,14 @@ erDiagram
     USER ||--o{ COMMENT : writes
     PHOTO ||--o{ COMMENT : receives
     USER {
-        string id PK
+        uuid id PK
         string name
         string email
         boolean email_verified
     }
     PHOTO {
         uuid id PK
-        string owner_id FK
+        uuid owner_id FK
         string object_key
         float latitude
         float longitude
@@ -75,7 +111,7 @@ erDiagram
     COMMENT {
         uuid id PK
         uuid photo_id FK
-        string author_id FK
+        uuid author_id FK
         string body
         timestamp created_at
     }
@@ -94,7 +130,7 @@ sequenceDiagram
     participant Gemini
     User->>Browser: Sign in and select photograph
     Browser->>Browser: Extract GPS, then resize/compress
-    Browser->>App: Upload image, coordinates, caption
+    Browser->>App: Upload image and coordinates
     App->>Auth: Verify session
     Auth-->>App: Authenticated user
     App->>App: Validate fields, file size, format and dimensions
