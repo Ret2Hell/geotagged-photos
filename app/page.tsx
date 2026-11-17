@@ -1,13 +1,16 @@
 import { Suspense } from "react";
-import { UploadForm } from "@/components/photos/upload-form";
+import { UploadDialog } from "@/components/photos/upload-dialog";
+import { PhotoMap } from "@/components/map/photo-map";
+import { getPhotoLocations } from "@/lib/photos/locations";
 import { requireSession } from "@/lib/auth/session";
 
 async function HomeContent() {
     await requireSession();
+    const locations = await getPhotoLocations();
     return (
-        <main className="mx-auto w-full max-w-5xl space-y-6 p-6">
-            <h1 className="text-2xl font-semibold">Your photographs</h1>
-            <UploadForm />
+        <main aria-label="Photograph map" className="relative min-h-0 flex-1">
+            <PhotoMap data={locations} />
+            <UploadDialog />
         </main>
     );
 }

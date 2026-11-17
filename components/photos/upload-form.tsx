@@ -7,18 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { prepareImage, type PreparedPhoto } from "@/lib/photos/prepare-image";
 
-export function UploadForm() {
+export function UploadForm({ onUploaded }: { onUploaded: () => void }) {
     const [photo, setPhoto] = useState<PreparedPhoto | null>(null);
     const [preparing, setPreparing] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [uploaded, setUploaded] = useState(false);
     const [error, setError] = useState("");
     const busy = preparing || uploading;
 
     async function selectPhoto(file: File | undefined) {
         setPhoto(null);
         setError("");
-        setUploaded(false);
         if (!file) return;
         setPreparing(true);
         try {
@@ -43,7 +41,6 @@ export function UploadForm() {
         data.set("latitude", String(photo.latitude));
         data.set("longitude", String(photo.longitude));
         setUploading(true);
-        setUploaded(false);
         setError("");
         try {
             const response = await fetch("/api/photos", {
@@ -63,7 +60,7 @@ export function UploadForm() {
             }
             form.reset();
             setPhoto(null);
-            setUploaded(true);
+            onUploaded();
         } catch (failure) {
             setError(
                 failure instanceof Error
@@ -80,17 +77,9 @@ export function UploadForm() {
             onSubmit={(event) => {
                 void upload(event);
             }}
-            aria-labelledby="photo-upload-title"
-            className="max-w-xl space-y-5 rounded-xl border p-6"
+            aria-label="Upload a photograph"
+            className="space-y-5"
         >
-            <div className="space-y-2">
-                <h2 id="photo-upload-title" className="text-xl font-semibold">
-                    Upload a photograph
-                </h2>
-                <p id="photo-help" className="text-muted-foreground text-sm">
-                    Choose a JPEG with GPS metadata, up to 25 MiB.
-                </p>
-            </div>
             <div className="space-y-2">
                 <label htmlFor="photo-file" className="text-sm font-medium">
                     Photograph
@@ -150,11 +139,6 @@ export function UploadForm() {
                 <p role="alert" className="text-destructive text-sm">
                     {error}
                 </p>
-            )}
-            {uploaded && (
-                <output className="text-primary block text-sm">
-                    Photograph uploaded successfully.
-                </output>
             )}
             <Button type="submit" disabled={!photo || busy}>
                 {uploading ? "Uploading…" : "Upload photo"}
