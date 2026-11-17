@@ -151,7 +151,7 @@ export default function MapCanvas({
             <Map
                 ref={mapRef}
                 mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                mapStyle="mapbox://styles/mapbox/light-v11"
+                mapStyle="mapbox://styles/mapbox/streets-v12"
                 initialViewState={{ longitude: 0, latitude: 20, zoom: 1.5 }}
                 style={{ width: "100%", height: "100%" }}
                 interactiveLayerIds={["photo-clusters", "photo-points"]}
