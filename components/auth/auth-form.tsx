@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { signIn, signUp } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordRequirements } from "./password-requirements";
 import {
     PASSWORD_PATTERN,
     PASSWORD_REQUIREMENTS,
@@ -15,6 +16,7 @@ const initialState: AuthFormState = {};
 
 export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
     const signingUp = mode === "sign-up";
+    const [password, setPassword] = useState("");
     const [state, action, pending] = useActionState(
         signingUp ? signUp : signIn,
         initialState,
@@ -63,6 +65,8 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
                     id="password"
                     name="password"
                     type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
                     autoComplete={
                         signingUp ? "new-password" : "current-password"
                     }
@@ -74,14 +78,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
                     disabled={pending}
                     aria-describedby={signingUp ? "password-hint" : undefined}
                 />
-                {signingUp && (
-                    <p
-                        id="password-hint"
-                        className="text-muted-foreground text-xs"
-                    >
-                        {PASSWORD_REQUIREMENTS}
-                    </p>
-                )}
+                {signingUp && <PasswordRequirements password={password} />}
             </div>
             {state.error && (
                 <p role="alert" className="text-destructive text-sm">
