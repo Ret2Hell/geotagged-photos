@@ -1,0 +1,66 @@
+[tools]
+node = "lts"
+pnpm = "12"
+hk = "2.13.0"
+gitleaks = "latest"
+
+[settings]
+lockfile = true
+
+[tasks.install]
+description = "Install locked pnpm dependencies"
+sources = [
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "mise.toml",
+    "mise.lock",
+]
+outputs = ["node_modules/.modules.yaml"]
+run = "pn install --frozen-lockfile"
+alias = ["i"]
+
+[tasks.hooks]
+description = "Install hk Git hooks"
+run = "hk install --mise"
+alias = ["hook"]
+
+[tasks.dev]
+description = "Start the Next.js development server"
+run = "pn run dev"
+alias = ["d"]
+
+[tasks.build]
+description = "Build the Next.js application"
+run = "pn run build"
+alias = ["b"]
+
+[tasks.start]
+description = "Start the production Next.js server"
+depends = ["build"]
+run = "pn run start"
+alias = ["s"]
+
+[tasks.typecheck]
+description = "Typecheck without emitting files"
+run = "pn run typecheck"
+alias = ["t", "tc"]
+
+[tasks.lint]
+description = "Lint with type-aware rules and TypeScript diagnostics"
+run = "pn run lint"
+alias = ["l"]
+
+[tasks.format]
+description = "Format files with Oxfmt"
+run = "pn run format"
+alias = ["fmt"]
+
+[tasks."format:check"]
+description = "Check formatting without modifying files"
+run = "pn run format:check"
+
+[tasks.check]
+description = "Check modified and untracked files without modifying them"
+run = "hk check --check"
+alias = ["c"]

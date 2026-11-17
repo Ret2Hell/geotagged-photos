@@ -38,15 +38,15 @@ flowchart TB
     Server -->|Vercel AI SDK| Gemini["Gemini API"]
 ```
 
-| Component | Responsibility |
-| --- | --- |
-| Web interface | Lets users sign in, upload photographs, select photos on the map, and read or write comments. Extracts GPS and resizes images before upload. |
-| Next.js backend | Verifies sessions, validates uploads and comments, saves records, generates signed image URLs, and requests AI descriptions. |
-| Neon Auth | Manages user accounts and sessions through managed Better Auth. |
-| Neon PostgreSQL | Stores photo coordinates, captions, object keys, AI descriptions, and comments. |
-| Neon Object Storage | Stores the image files in a private bucket; serves selected images through short-lived signed URLs. |
-| Mapbox | Supplies map styles and tiles; Mapbox GL JS renders the interactive map and clusters photo locations in the browser. |
-| Gemini via Vercel AI SDK | Generates image descriptions for the backend to store. |
+| Component                | Responsibility                                                                                                                               |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web interface            | Lets users sign in, upload photographs, select photos on the map, and read or write comments. Extracts GPS and resizes images before upload. |
+| Next.js backend          | Verifies sessions, validates uploads and comments, saves records, generates signed image URLs, and requests AI descriptions.                 |
+| Neon Auth                | Manages user accounts and sessions through managed Better Auth.                                                                              |
+| Neon PostgreSQL          | Stores photo coordinates, captions, object keys, AI descriptions, and comments.                                                              |
+| Neon Object Storage      | Stores the image files in a private bucket; serves selected images through short-lived signed URLs.                                          |
+| Mapbox                   | Supplies map styles and tiles; Mapbox GL JS renders the interactive map and clusters photo locations in the browser.                         |
+| Gemini via Vercel AI SDK | Generates image descriptions for the backend to store.                                                                                       |
 
 ## Data model
 
@@ -80,7 +80,6 @@ erDiagram
         timestamp created_at
     }
 ```
-
 
 ## Upload-to-map workflow
 
@@ -126,15 +125,15 @@ sequenceDiagram
 
 ## Time estimate
 
-| Step | Minutes |
-| --- | ---: |
-| Planning, architecture, and inspecting supplied image assets | 50 |
-| Project setup, foundation, tooling, database/storage, early Vercel deployment | 30 |
-| Authentication | 25 |
-| Upload and GPS extraction | 30 |
-| Map and clustering | 30 |
-| Photo details and comments | 25 |
-| Gemini image descriptions | 20 |
-| End-to-end checks, lint/type/build, deployment fixes | 20 |
-| Setup instructions and known limitations | 10 |
-| **Total** | **240 (4 hours)** |
+| Step                                                                          |           Minutes |
+| ----------------------------------------------------------------------------- | ----------------: |
+| Planning, architecture, and inspecting supplied image assets                  |                50 |
+| Project setup, foundation, tooling, database/storage, early Vercel deployment |                30 |
+| Authentication                                                                |                25 |
+| Upload and GPS extraction                                                     |                30 |
+| Map and clustering                                                            |                30 |
+| Photo details and comments                                                    |                25 |
+| Gemini image descriptions                                                     |                20 |
+| End-to-end checks, lint/type/build, deployment fixes                          |                20 |
+| Setup instructions and known limitations                                      |                10 |
+| **Total**                                                                     | **240 (4 hours)** |
