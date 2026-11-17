@@ -1,0 +1,6 @@
+{
+    "ignorePatterns": ["*.json", "*.jsonc"],
+    "sortTailwindcss": true,
+    "tabWidth": 4,
+    "printWidth": 80
+}
