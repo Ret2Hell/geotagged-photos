@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth/server";
 import {
     signInSchema,
     signUpSchema,
+    PASSWORD_REQUIREMENTS,
     type AuthFormState,
 } from "@/lib/auth/validation";
 
@@ -35,7 +36,7 @@ export async function signUp(
     const input = signUpSchema.safeParse(Object.fromEntries(formData));
     if (!input.success)
         return {
-            error: "Enter your name, a valid email, and a password between 8 and 128 characters.",
+            error: `Enter your name and a valid email. ${PASSWORD_REQUIREMENTS}`,
         };
 
     try {

@@ -5,7 +5,11 @@ import { useActionState } from "react";
 import { signIn, signUp } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { AuthFormState } from "@/lib/auth/validation";
+import {
+    PASSWORD_PATTERN,
+    PASSWORD_REQUIREMENTS,
+    type AuthFormState,
+} from "@/lib/auth/validation";
 
 const initialState: AuthFormState = {};
 
@@ -62,8 +66,10 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
                     autoComplete={
                         signingUp ? "new-password" : "current-password"
                     }
-                    minLength={signingUp ? 8 : 1}
-                    maxLength={128}
+                    minLength={signingUp ? 12 : 1}
+                    maxLength={signingUp ? 64 : 128}
+                    pattern={signingUp ? PASSWORD_PATTERN : undefined}
+                    title={signingUp ? PASSWORD_REQUIREMENTS : undefined}
                     required
                     disabled={pending}
                     aria-describedby={signingUp ? "password-hint" : undefined}
@@ -73,7 +79,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
                         id="password-hint"
                         className="text-muted-foreground text-xs"
                     >
-                        Use 8–128 characters.
+                        {PASSWORD_REQUIREMENTS}
                     </p>
                 )}
             </div>
