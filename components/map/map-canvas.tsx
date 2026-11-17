@@ -13,6 +13,7 @@ import Map, {
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { env } from "@/lib/env";
+import { PhotoDetailsDialog } from "@/components/photos/photo-details-dialog";
 import type { PhotoLocations } from "@/lib/photos/locations";
 
 const clusters: LayerProps = {
@@ -60,6 +61,7 @@ const points: LayerProps = {
 export default function MapCanvas({ data }: { data: PhotoLocations }) {
     const mapRef = useRef<MapRef>(null);
     const [error, setError] = useState("");
+    const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
 
     const [loaded, setLoaded] = useState(false);
 
@@ -84,7 +86,15 @@ export default function MapCanvas({ data }: { data: PhotoLocations }) {
         if (loaded) fitPhotos(0);
     }, [fitPhotos, loaded]);
 
-    function expandCluster(event: MapMouseEvent) {
+    function handleMapClick(event: MapMouseEvent) {
+        const point = event.features?.find(
+            (item) => item.layer?.id === "photo-points",
+        );
+        const photoId: unknown = point?.properties?.id;
+        if (typeof photoId === "string") {
+            setSelectedPhotoId(photoId);
+            return;
+        }
         const feature = event.features?.find(
             (item) => item.layer?.id === "photo-clusters",
         );
@@ -111,9 +121,9 @@ export default function MapCanvas({ data }: { data: PhotoLocations }) {
                 mapStyle="mapbox://styles/mapbox/light-v11"
                 initialViewState={{ longitude: 0, latitude: 20, zoom: 1.5 }}
                 style={{ width: "100%", height: "100%" }}
-                interactiveLayerIds={["photo-clusters"]}
+                interactiveLayerIds={["photo-clusters", "photo-points"]}
                 onLoad={() => setLoaded(true)}
-                onClick={expandCluster}
+                onClick={handleMapClick}
                 onError={(event) => {
                     const message =
                         event.error.message || "An unknown map error occurred.";
@@ -136,6 +146,13 @@ export default function MapCanvas({ data }: { data: PhotoLocations }) {
                     <Layer {...points} />
                 </Source>
             </Map>
+            {selectedPhotoId && (
+                <PhotoDetailsDialog
+                    key={selectedPhotoId}
+                    photoId={selectedPhotoId}
+                    onClose={() => setSelectedPhotoId(null)}
+                />
+            )}
             {error && (
                 <p
                     role="alert"
