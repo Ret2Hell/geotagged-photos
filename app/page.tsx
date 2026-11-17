@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { UploadDialog } from "@/components/photos/upload-dialog";
-import { PhotoMap } from "@/components/map/photo-map";
+import { PhotoWorkspace } from "@/components/photos/photo-workspace";
 import { getPhotoLocations } from "@/lib/photos/locations";
 import { requireSession } from "@/lib/auth/session";
 
@@ -9,8 +8,7 @@ async function HomeContent() {
     const locations = await getPhotoLocations();
     return (
         <main aria-label="Photograph map" className="relative min-h-0 flex-1">
-            <PhotoMap data={locations} />
-            <UploadDialog />
+            <PhotoWorkspace locations={locations} />
         </main>
     );
 }

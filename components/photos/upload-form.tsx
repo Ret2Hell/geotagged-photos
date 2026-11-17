@@ -6,8 +6,13 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { prepareImage, type PreparedPhoto } from "@/lib/photos/prepare-image";
+import { uploadResponseSchema } from "@/lib/photos/contracts";
 
-export function UploadForm({ onUploaded }: { onUploaded: () => void }) {
+export function UploadForm({
+    onUploaded,
+}: {
+    onUploaded: (photoId: string) => void;
+}) {
     const [photo, setPhoto] = useState<PreparedPhoto | null>(null);
     const [preparing, setPreparing] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -58,9 +63,11 @@ export function UploadForm({ onUploaded }: { onUploaded: () => void }) {
                         : "Upload failed. Please try again.",
                 );
             }
+            const result: unknown = await response.json();
+            const { id } = uploadResponseSchema.parse(result);
             form.reset();
             setPhoto(null);
-            onUploaded();
+            onUploaded(id);
         } catch (failure) {
             setError(
                 failure instanceof Error

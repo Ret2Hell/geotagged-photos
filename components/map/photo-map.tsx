@@ -14,6 +14,12 @@ const MapCanvas = dynamic(() => import("./map-canvas"), {
     ),
 });
 
-export function PhotoMap({ data }: { data: PhotoLocations }) {
-    return <MapCanvas data={data} />;
+export function PhotoMap({
+    data,
+    descriptions,
+}: {
+    data: PhotoLocations;
+    descriptions: Record<string, string>;
+}) {
+    return <MapCanvas data={data} descriptions={descriptions} />;
 }
