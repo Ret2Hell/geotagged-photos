@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { SiteHeader } from "@/components/site-header";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -33,7 +34,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 figtree.variable,
             )}
         >
-            <body className="flex min-h-full flex-col">{children}</body>
+            <body className="flex min-h-full flex-col">
+                <SiteHeader />
+                {children}
+            </body>
         </html>
     );
 }
