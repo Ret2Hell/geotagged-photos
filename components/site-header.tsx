@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { unstable_rethrow } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { auth } from "@/lib/auth/server";
 
 async function SessionActions() {
+    await connection();
     const result = await auth
         .getSession({
             query: { disableCookieCache: "true" },
