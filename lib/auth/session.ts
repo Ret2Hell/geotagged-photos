@@ -1,9 +1,11 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { auth } from "./server.ts";
 
 export async function requireSession() {
+    await connection();
     const { data: session, error } = await auth.getSession({
         query: { disableCookieCache: "true" },
     });
