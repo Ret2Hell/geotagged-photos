@@ -11,7 +11,7 @@ import {
     varchar,
 } from "drizzle-orm/pg-core";
 
-// User references will be constrained when Neon Auth is integrated.
+// Custom SQL adds user foreign keys without making Drizzle manage Neon Auth.
 export const photos = pgTable(
     "photos",
     {
