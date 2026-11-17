@@ -1,18 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { prepareImage, type PreparedPhoto } from "@/lib/photos/prepare-image";
 
-export function PhotoPreparation() {
+export function UploadForm() {
     const [photo, setPhoto] = useState<PreparedPhoto | null>(null);
     const [preparing, setPreparing] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [uploaded, setUploaded] = useState(false);
     const [error, setError] = useState("");
+    const busy = preparing || uploading;
 
     async function selectPhoto(file: File | undefined) {
         setPhoto(null);
         setError("");
+        setUploaded(false);
         if (!file) return;
         setPreparing(true);
         try {
@@ -28,22 +34,61 @@ export function PhotoPreparation() {
         }
     }
 
+    async function upload(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!photo || busy) return;
+        const form = event.currentTarget;
+        const data = new FormData(form);
+        data.set("file", photo.image, "photo.jpg");
+        data.set("latitude", String(photo.latitude));
+        data.set("longitude", String(photo.longitude));
+        setUploading(true);
+        setUploaded(false);
+        setError("");
+        try {
+            const response = await fetch("/api/photos", {
+                method: "POST",
+                body: data,
+            });
+            if (!response.ok) {
+                const result: unknown = await response.json().catch(() => null);
+                const message = z
+                    .object({ error: z.string() })
+                    .safeParse(result);
+                throw new Error(
+                    message.success
+                        ? message.data.error
+                        : "Upload failed. Please try again.",
+                );
+            }
+            form.reset();
+            setPhoto(null);
+            setUploaded(true);
+        } catch (failure) {
+            setError(
+                failure instanceof Error
+                    ? failure.message
+                    : "The photograph could not be uploaded.",
+            );
+        } finally {
+            setUploading(false);
+        }
+    }
+
     return (
-        <section
-            aria-labelledby="photo-preparation-title"
+        <form
+            onSubmit={(event) => {
+                void upload(event);
+            }}
+            aria-labelledby="photo-upload-title"
             className="max-w-xl space-y-5 rounded-xl border p-6"
         >
             <div className="space-y-2">
-                <h2
-                    id="photo-preparation-title"
-                    className="text-xl font-semibold"
-                >
-                    Prepare a photograph
+                <h2 id="photo-upload-title" className="text-xl font-semibold">
+                    Upload a photograph
                 </h2>
                 <p id="photo-help" className="text-muted-foreground text-sm">
-                    Choose a JPEG with GPS metadata, up to 25 MiB. Preparation
-                    and preview happen entirely in your browser; nothing is
-                    uploaded yet.
+                    Choose a JPEG with GPS metadata, up to 25 MiB.
                 </p>
             </div>
             <div className="space-y-2">
@@ -52,9 +97,11 @@ export function PhotoPreparation() {
                 </label>
                 <Input
                     id="photo-file"
+                    name="file"
                     type="file"
                     accept="image/jpeg,.jpg,.jpeg"
-                    disabled={preparing}
+                    disabled={busy}
+                    required
                     aria-describedby="photo-help"
                     className="h-auto py-2"
                     onChange={(event) => {
@@ -66,11 +113,6 @@ export function PhotoPreparation() {
                 <output className="text-muted-foreground block text-sm">
                     Reading GPS and preparing the photograph…
                 </output>
-            )}
-            {error && (
-                <p role="alert" className="text-destructive text-sm">
-                    {error}
-                </p>
             )}
             {photo && (
                 <div className="space-y-4">
@@ -102,11 +144,21 @@ export function PhotoPreparation() {
                             </dd>
                         </div>
                     </dl>
-                    <output className="text-primary block text-sm">
-                        Photograph prepared. Upload will be connected next.
-                    </output>
                 </div>
             )}
-        </section>
+            {error && (
+                <p role="alert" className="text-destructive text-sm">
+                    {error}
+                </p>
+            )}
+            {uploaded && (
+                <output className="text-primary block text-sm">
+                    Photograph uploaded successfully.
+                </output>
+            )}
+            <Button type="submit" disabled={!photo || busy}>
+                {uploading ? "Uploading…" : "Upload photo"}
+            </Button>
+        </form>
     );
 }

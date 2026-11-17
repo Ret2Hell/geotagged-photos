@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PhotoPreparation } from "@/components/photos/photo-preparation";
+import { UploadForm } from "@/components/photos/upload-form";
 import { requireSession } from "@/lib/auth/session";
 
 async function HomeContent() {
@@ -7,7 +7,7 @@ async function HomeContent() {
     return (
         <main className="mx-auto w-full max-w-5xl space-y-6 p-6">
             <h1 className="text-2xl font-semibold">Your photographs</h1>
-            <PhotoPreparation />
+            <UploadForm />
         </main>
     );
 }
