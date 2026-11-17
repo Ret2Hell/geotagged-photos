@@ -60,6 +60,22 @@ alias = ["fmt"]
 description = "Check formatting without modifying files"
 run = "pn run format:check"
 
+[tasks."db:check"]
+description = "Check Neon connectivity without changing data"
+run = "pn run db:check"
+
+[tasks."db:generate"]
+description = "Generate SQL migrations from the application schema"
+run = "pn run db:generate"
+
+[tasks."db:migrate"]
+description = "Apply migrations to DATABASE_URL (changes the database)"
+run = "pn run db:migrate"
+
+[tasks."db:studio"]
+description = "Open Drizzle Studio for the configured database"
+run = "pn run db:studio"
+
 [tasks.check]
 description = "Check modified and untracked files without modifying them"
 run = "hk check --check"
