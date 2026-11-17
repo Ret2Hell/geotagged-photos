@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { PhotoComments } from "./comments";
 import {
     Dialog,
     DialogContent,
@@ -112,6 +113,10 @@ export function PhotoDetailsDialog({
                         {photo.aiDescription && (
                             <p className="text-sm">{photo.aiDescription}</p>
                         )}
+                        <PhotoComments
+                            photoId={photo.id}
+                            initialComments={photo.comments}
+                        />
                     </div>
                 )}
             </DialogContent>

@@ -9,6 +9,7 @@ import { photos } from "@/db/schema";
 import { auth } from "@/lib/auth/server";
 import { env } from "@/lib/env";
 import { storage } from "@/lib/storage/client";
+import { getPhotoComments } from "@/lib/photos/comments";
 
 export async function GET(
     _request: Request,
@@ -67,6 +68,7 @@ export async function GET(
                 createdAt: photo.createdAt.toISOString(),
                 aiDescription: photo.aiDescription,
                 imageUrl,
+                comments: await getPhotoComments(photo.id),
             },
             { headers: { "Cache-Control": "private, no-store" } },
         );
