@@ -1,0 +1,17 @@
+import "server-only";
+
+import { S3Client } from "@aws-sdk/client-s3";
+import { env } from "../env.ts";
+
+export const storage = new S3Client({
+    endpoint: env.AWS_ENDPOINT_URL_S3,
+    region: env.AWS_REGION,
+    credentials: {
+        accessKeyId: env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+    },
+    forcePathStyle: true,
+    maxAttempts: 2,
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
+});
