@@ -1,0 +1,60 @@
+amends "package://github.com/jdx/hk/releases/download/v2.13.0/hk@2.13.0#/Config.pkl"
+
+import "package://github.com/jdx/hk/releases/download/v2.13.0/hk@2.13.0#/Builtins.pkl"
+
+local quality = new Mapping<String, Step | Group> {
+    ["oxfmt"] {
+        glob = List(
+            "**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}",
+            "**/*.{css,scss,less,html,md,mdx,markdown}",
+            "**/*.{yaml,yml,toml}"
+        )
+        exclude = List("pnpm-lock.yaml", "next-env.d.ts")
+        check = "pn exec oxfmt --check --no-error-on-unmatched-pattern {{files}}"
+        fix = "pn exec oxfmt --write --no-error-on-unmatched-pattern {{files}}"
+        depends = List("oxlint")
+    }
+    ["oxlint"] {
+        glob = List(
+            "**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}",
+            "tsconfig.json",
+            ".oxlintrc.json",
+            "package.json",
+            "pnpm-lock.yaml",
+            "pnpm-workspace.yaml"
+        )
+        // Check the whole project: type changes can break unchanged consumers.
+        check = "pn exec oxlint --type-aware --type-check"
+        // Restrict writes to selected files, then check the whole project.
+        fix = "pn exec oxlint --type-aware --type-check --fix --no-error-on-unmatched-pattern {{files}} && pn exec oxlint --type-aware --type-check"
+    }
+    ["merge-conflict"] = Builtins.check_merge_conflict
+    ["private-key"] = Builtins.detect_private_key
+}
+
+hooks {
+    ["pre-commit"] {
+        fix = true
+        stash = "git"
+        steps {
+            ...quality
+            ["gitleaks"] = (Builtins.gitleaks) {
+                scan = "staged"
+            }
+        }
+    }
+    ["pre-push"] {
+        steps {
+            ["typecheck"] {
+                check = "pn run typecheck"
+            }
+        }
+    }
+    ["check"] {
+        steps = quality
+    }
+    ["fix"] {
+        fix = true
+        steps = quality
+    }
+}

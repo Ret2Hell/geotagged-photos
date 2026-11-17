@@ -1,6 +1,8 @@
 [tools]
 node = "lts"
 pnpm = "12"
+hk = "2.13.0"
+gitleaks = "latest"
 
 [settings]
 lockfile = true
@@ -17,6 +19,11 @@ sources = [
 outputs = ["node_modules/.modules.yaml"]
 run = "pn install --frozen-lockfile"
 alias = ["i"]
+
+[tasks.hooks]
+description = "Install hk Git hooks"
+run = "hk install --mise"
+alias = ["hook"]
 
 [tasks.dev]
 description = "Start the Next.js development server"
@@ -54,6 +61,6 @@ description = "Check formatting without modifying files"
 run = "pn run format:check"
 
 [tasks.check]
-description = "Run lint, typecheck, and formatting checks"
-depends = ["lint", "typecheck", "format:check"]
+description = "Check modified and untracked files without modifying them"
+run = "hk check --check"
 alias = ["c"]
