@@ -12,7 +12,7 @@
     },
     "rules": {
         "react/react-in-jsx-scope": "off",
-        "import/no-unassigned-import": ["error", { "allow": ["**/*.css", "./lib/env.ts"] }],
+        "import/no-unassigned-import": ["error", { "allow": ["**/*.css", "./lib/env.ts", "**/load-env.ts", "server-only"] }],
         "react/rules-of-hooks": "error",
         "react/exhaustive-deps": "warn",
         "nextjs/no-html-link-for-pages": "error",
