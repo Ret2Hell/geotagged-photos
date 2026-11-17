@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { PhotoComments } from "./comments";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -16,13 +17,11 @@ import {
     type PhotoDetails,
 } from "@/lib/photos/contracts";
 
-export function PhotoDetailsDialog({
+function PhotoDetailsContent({
     photoId,
-    onClose,
     generatedDescription,
 }: {
     photoId: string;
-    onClose: () => void;
     generatedDescription?: string;
 }) {
     const [photo, setPhoto] = useState<PhotoDetails | null>(null);
@@ -61,33 +60,23 @@ export function PhotoDetailsDialog({
     }, [photoId]);
 
     return (
-        <Dialog
-            open
-            onOpenChange={(open) => {
-                if (!open) onClose();
-            }}
-        >
-            <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
-                <DialogHeader>
-                    <DialogTitle>Photograph</DialogTitle>
-                    <DialogDescription>
-                        {photo
-                            ? `${photo.latitude.toFixed(5)}, ${photo.longitude.toFixed(5)}`
-                            : "Loading photograph details…"}
-                    </DialogDescription>
-                </DialogHeader>
-                {error && (
-                    <p role="alert" className="text-destructive text-sm">
-                        {error}
-                    </p>
-                )}
-                {!photo && !error && (
-                    <output className="text-muted-foreground py-12 text-center text-sm">
-                        Loading photograph…
-                    </output>
-                )}
-                {photo && (
-                    <div className="space-y-4">
+        <>
+            {error && (
+                <p role="alert" className="text-destructive p-6 text-sm">
+                    {error}
+                </p>
+            )}
+            {!photo && !error && (
+                <output className="text-muted-foreground flex flex-1 items-center justify-center p-6 text-sm">
+                    Loading photograph…
+                </output>
+            )}
+            {photo && (
+                <div className="min-h-0 flex-1 overflow-y-auto md:grid md:grid-cols-[minmax(0,1.35fr)_minmax(20rem,1fr)] md:grid-rows-1 md:overflow-hidden">
+                    <section
+                        aria-label="Photograph details"
+                        className="min-h-0 min-w-0 space-y-5 p-5 sm:p-6 md:overflow-y-auto"
+                    >
                         <Image
                             src={photo.imageUrl}
                             alt="Uploaded geotagged photograph"
@@ -95,7 +84,7 @@ export function PhotoDetailsDialog({
                             height={photo.height}
                             unoptimized
                             onError={() => setImageError(true)}
-                            className="bg-muted max-h-[50dvh] w-full rounded-xl object-contain"
+                            className="bg-muted max-h-[45dvh] w-full rounded-2xl object-contain"
                         />
                         {imageError && (
                             <p
@@ -106,12 +95,29 @@ export function PhotoDetailsDialog({
                                 photograph to request a fresh link.
                             </p>
                         )}
-                        <p className="text-muted-foreground text-xs">
-                            Uploaded{" "}
-                            <time dateTime={photo.createdAt}>
-                                {new Date(photo.createdAt).toLocaleString()}
-                            </time>
-                        </p>
+                        <dl className="bg-muted/30 grid gap-4 rounded-xl border p-4 text-sm sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+                            <div className="space-y-1">
+                                <dt className="text-muted-foreground text-xs">
+                                    Location
+                                </dt>
+                                <dd className="font-mono text-xs">
+                                    {photo.latitude.toFixed(5)},{" "}
+                                    {photo.longitude.toFixed(5)}
+                                </dd>
+                            </div>
+                            <div className="space-y-1">
+                                <dt className="text-muted-foreground text-xs">
+                                    Uploaded
+                                </dt>
+                                <dd>
+                                    <time dateTime={photo.createdAt}>
+                                        {new Date(
+                                            photo.createdAt,
+                                        ).toLocaleString()}
+                                    </time>
+                                </dd>
+                            </div>
+                        </dl>
                         <section
                             aria-labelledby="description-title"
                             className="space-y-2"
@@ -120,20 +126,92 @@ export function PhotoDetailsDialog({
                                 id="description-title"
                                 className="font-semibold"
                             >
-                                AI description
+                                Description
                             </h2>
-                            <p className="text-sm whitespace-pre-wrap">
+                            <p className="text-muted-foreground text-sm leading-relaxed wrap-anywhere whitespace-pre-wrap">
                                 {generatedDescription ||
                                     photo.aiDescription ||
-                                    "No AI description available."}
+                                    "No description available."}
                             </p>
                         </section>
-                        <PhotoComments
-                            photoId={photo.id}
-                            initialComments={photo.comments}
-                        />
-                    </div>
+                    </section>
+                    <PhotoComments
+                        photoId={photo.id}
+                        initialComments={photo.comments}
+                    />
+                </div>
+            )}
+        </>
+    );
+}
+
+export function PhotoDetailsDialog({
+    photoId,
+    generatedDescription,
+    position,
+    count,
+    onPrevious,
+    onNext,
+    onClose,
+}: {
+    photoId: string;
+    generatedDescription?: string;
+    position: number;
+    count: number;
+    onPrevious: () => void;
+    onNext: () => void;
+    onClose: () => void;
+}) {
+    return (
+        <Dialog
+            open
+            onOpenChange={(open) => {
+                if (!open) onClose();
+            }}
+        >
+            <DialogContent className="flex h-[90dvh] max-h-[56rem] flex-col gap-0 overflow-hidden p-0 sm:max-w-6xl">
+                <DialogHeader className="sr-only">
+                    <DialogTitle>Photo details</DialogTitle>
+                    <DialogDescription className="sr-only">
+                        View photograph details and comments.
+                    </DialogDescription>
+                </DialogHeader>
+                {count > 1 && (
+                    <nav
+                        aria-label="Photograph navigation"
+                        className="flex shrink-0 items-center justify-between gap-3 border-b py-3 pr-16 pl-5 sm:pl-6"
+                    >
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={position === 0}
+                            onClick={onPrevious}
+                        >
+                            Previous
+                        </Button>
+                        <span
+                            aria-live="polite"
+                            className="text-muted-foreground text-sm"
+                        >
+                            {position + 1} of {count}
+                        </span>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={position === count - 1}
+                            onClick={onNext}
+                        >
+                            Next
+                        </Button>
+                    </nav>
                 )}
+                <PhotoDetailsContent
+                    key={photoId}
+                    photoId={photoId}
+                    generatedDescription={generatedDescription}
+                />
             </DialogContent>
         </Dialog>
     );
